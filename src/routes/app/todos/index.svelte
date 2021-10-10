@@ -3,12 +3,9 @@
   import { flip } from 'svelte/animate';
   import { scale } from 'svelte/transition';
 
-  // see https://kit.svelte.dev/docs#loading
   export const load = async ({ fetch }) => {
     const res = await fetch('/api/todos.json');
-
     if (res.ok) return { props: { todos: await res.json() } };
-
     const { message } = await res.json();
     return { error: new Error(message) };
   };
@@ -16,11 +13,6 @@
 
 <script>
   export let todos;
-
-  async function patch(res) {
-    const todo = await res.json();
-    todos = todos.map(t => (t.uid === todo.uid ? todo : t));
-  }
 </script>
 
 <svelte:head>
@@ -52,14 +44,27 @@
         method="post"
         use:enhance={{
           pending: data => (todo.done = !!data.get('done')),
-          result: patch,
+          result: async res => {
+            const todo = await res.json();
+            todos = todos.map(t => (t.uid === todo.uid ? todo : t));
+          },
         }}
       >
         <input type="hidden" name="done" value={todo.done ? '' : 'true'} />
         <button class="toggle" aria-label="Mark todo as {todo.done ? 'not done' : 'done'}" />
       </form>
 
-      <form class="text" action="/todos/{todo.uid}.json?_method=patch" method="post" use:enhance={{ result: patch }}>
+      <form
+        class="text"
+        action="/api/todos/{todo.uid}.json?_method=patch"
+        method="post"
+        use:enhance={{
+          result: async res => {
+            const todo = await res.json();
+            todos = todos.map(t => (t.uid === todo.uid ? todo : t));
+          },
+        }}
+      >
         <input aria-label="Edit todo" type="text" name="text" value={todo.text} />
         <button class="save" aria-label="Save todo" />
       </form>
