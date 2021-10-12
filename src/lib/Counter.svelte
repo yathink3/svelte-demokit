@@ -1,14 +1,12 @@
 <script>
   import { spring } from 'svelte/motion';
-
+  const displayed_count = spring();
   let count = 0;
 
-  const displayed_count = spring();
-  $: displayed_count.set(count);
+  $: $displayed_count = count;
   $: offset = modulo($displayed_count, 1);
 
   function modulo(n, m) {
-    // handle negative numbers
     return ((n % m) + m) % m;
   }
 </script>
