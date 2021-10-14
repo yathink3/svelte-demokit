@@ -1,9 +1,8 @@
-/** @type {import('@sveltejs/kit').Config} */
-const config = {
+import adapter from '@sveltejs/adapter-node';
+
+export default {
   kit: {
-    // hydrate the <div id="svelte"> element in src/app.html
     target: '#svelte',
+    adapter: adapter(),
   },
 };
-
-export default config;
