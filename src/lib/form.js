@@ -22,7 +22,7 @@ export function enhance(form, { pending, error, result }) {
       if (token !== current_token) return;
 
       if (res.ok) {
-        result(res, form);
+        result(await res.json(), form);
       } else if (error) {
         error(res, null, form);
       } else {

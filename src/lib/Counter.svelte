@@ -3,12 +3,10 @@
   const displayed_count = spring();
   let count = 0;
 
+  const modulo = (n, m) => ((n % m) + m) % m;
+
   $: $displayed_count = count;
   $: offset = modulo($displayed_count, 1);
-
-  function modulo(n, m) {
-    return ((n % m) + m) % m;
-  }
 </script>
 
 <div class="counter">

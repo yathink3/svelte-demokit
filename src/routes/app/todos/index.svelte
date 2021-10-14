@@ -27,8 +27,7 @@
     action="/api/todos.json"
     method="post"
     use:enhance={{
-      result: async (res, form) => {
-        const created = await res.json();
+      result: async (created, form) => {
         todos = [...todos, created];
         form.reset();
       },
@@ -39,44 +38,17 @@
 
   {#each todos as todo (todo.uid)}
     <div class="todo" class:done={todo.done} transition:scale|local={{ start: 0.2 }} animate:flip={{ duration: 100 }}>
-      <form
-        action="/api/todos/{todo.uid}.json?_method=patch"
-        method="post"
-        use:enhance={{
-          pending: data => (todo.done = !!data.get('done')),
-          result: async res => {
-            const todo = await res.json();
-            todos = todos.map(t => (t.uid === todo.uid ? todo : t));
-          },
-        }}
-      >
+      <form action="/api/todos/{todo.uid}.json?_method=patch" method="post" use:enhance={{ pending: data => (todo.done = !!data.get('done')), result: todo => (todos = todos.map(t => (t.uid === todo.uid ? todo : t))) }}>
         <input type="hidden" name="done" value={todo.done ? '' : 'true'} />
         <button class="toggle" aria-label="Mark todo as {todo.done ? 'not done' : 'done'}" />
       </form>
 
-      <form
-        class="text"
-        action="/api/todos/{todo.uid}.json?_method=patch"
-        method="post"
-        use:enhance={{
-          result: async res => {
-            const todo = await res.json();
-            todos = todos.map(t => (t.uid === todo.uid ? todo : t));
-          },
-        }}
-      >
+      <form class="text" action="/api/todos/{todo.uid}.json?_method=patch" method="post" use:enhance={{ result: todo => (todos = todos.map(t => (t.uid === todo.uid ? todo : t))) }}>
         <input aria-label="Edit todo" type="text" name="text" value={todo.text} />
         <button class="save" aria-label="Save todo" />
       </form>
 
-      <form
-        action="/api/todos/{todo.uid}.json?_method=delete"
-        method="post"
-        use:enhance={{
-          pending: () => (todo.pending_delete = true),
-          result: () => (todos = todos.filter(t => t.uid !== todo.uid)),
-        }}
-      >
+      <form action="/api/todos/{todo.uid}.json?_method=delete" method="post" use:enhance={{ pending: () => (todo.pending_delete = true), result: () => (todos = todos.filter(t => t.uid !== todo.uid)) }}>
         <button class="delete" aria-label="Delete todo" disabled={todo.pending_delete} />
       </form>
     </div>
